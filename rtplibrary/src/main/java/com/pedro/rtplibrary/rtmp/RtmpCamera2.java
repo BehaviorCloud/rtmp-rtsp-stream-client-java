@@ -4,6 +4,8 @@ import android.content.Context;
 import android.media.MediaCodec;
 import android.os.Build;
 import androidx.annotation.RequiresApi;
+
+import android.util.Log;
 import android.view.SurfaceView;
 import android.view.TextureView;
 
@@ -26,6 +28,7 @@ import java.nio.ByteBuffer;
 public class RtmpCamera2 extends Camera2Base {
 
   private SrsFlvMuxer srsFlvMuxer;
+  private int frameCount = 0;
 
   public RtmpCamera2(SurfaceView surfaceView, ConnectCheckerRtmp connectChecker) {
     super(surfaceView);
@@ -165,6 +168,11 @@ public class RtmpCamera2 extends Camera2Base {
   @Override
   protected void getH264DataRtp(ByteBuffer h264Buffer, MediaCodec.BufferInfo info) {
     srsFlvMuxer.sendVideo(h264Buffer, info);
+    frameCount++;
+    if (frameCount % 30 == 0) {
+      videoEncoder.forceSyncFrame();
+      Log.d("RtmpCamera2","Forcing sync frame");
+    }
   }
 }
 
